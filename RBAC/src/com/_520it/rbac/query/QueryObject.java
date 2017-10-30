@@ -1,0 +1,14 @@
+package com._520it.rbac.query;
+
+import lombok.Getter;
+import lombok.Setter;
+@Setter@Getter
+public class QueryObject {
+	
+	private Integer currentPage = 1;
+	private Integer pageSize = 5;
+	
+	public int getBeginIndex(){
+		return (currentPage - 1) * pageSize;
+	}
+}

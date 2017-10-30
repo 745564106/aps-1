@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<constant name="struts.devMode" value="true" />
+	<package name="deptPkg" namespace="/" extends="struts-default">
+		<!-- 注册拦截器 -->
+		<interceptors>
+			<interceptor name="checkLoginInterceptor" class="com._520it.rbac.web.interceptor.CheckLoginInterceptor"></interceptor>
+			<interceptor name="security" class="com._520it.rbac.web.interceptor.SecurityInterceptor"></interceptor>
+			<!-- 配置拦截器栈 -->
+			<interceptor-stack name="mystack">
+				<interceptor-ref name="checkLoginInterceptor"></interceptor-ref>
+				<interceptor-ref name="security"></interceptor-ref>
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		<!-- 将struts2中的默认拦截器栈给为自己定义的拦截器栈 -->
+		<default-interceptor-ref name="mystack"></default-interceptor-ref>
+		<!-- 全局的结果视图 -->
+		<global-results>
+			<result name="login">/login.jsp</result>
+			<result name="nopermission">/WEB-INF/views/nopermission.jsp</result>
+		</global-results>
+		<!-- 原来是将Action交给Struts2框架管理:Struts2中使用BeanFacotry来创建Action的对象 -->
+		<action name="*_*" class="{1}Action" method="{2}">
+			<interceptor-ref name="mystack"></interceptor-ref>
+			<result name="list">/WEB-INF/views/{1}/list.jsp</result>
+			<result name="success" type="redirectAction">
+				{1}
+			</result>
+			<result name="input">/WEB-INF/views/{1}/input.jsp</result>
+		</action>
+		
+		<action name="main">
+			<result>/WEB-INF/views/main.jsp</result>
+		</action>
+		
+		<action name="login" class="loginAction" >
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="main" type="redirectAction">main</result>
+			<result name="login">/login.jsp</result>
+		</action>
+		
+		<action name="logout" class="logoutAction">
+			<result name="logout">/login.jsp</result>
+		</action>
+	</package>
+</struts>

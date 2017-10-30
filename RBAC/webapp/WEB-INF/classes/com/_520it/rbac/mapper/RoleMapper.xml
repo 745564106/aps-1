@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com._520it.rbac.mapper.RoleMapper">
+	<insert id="save" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		insert into role(name,sn) values(#{name},#{sn})
+	</insert>	
+	
+	<delete id="delete">
+		delete from role where id = #{id}
+	</delete>
+	
+	<update id="update">
+		update role set name = #{name},sn = #{sn} where id = #{id}
+	</update>
+	
+	<resultMap type="Role" id="baseMapper">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="sn" column="sn" />
+		<collection property="permissions" ofType="Permission" 
+					select="com._520it.rbac.mapper.PermissionMapper.selectByRoleId" column="id"></collection>
+	</resultMap>
+	
+	<select id="get" resultMap="baseMapper">
+		select * from role where id = #{id}
+	</select>
+	
+	<select id="listAll" resultMap="baseMapper">
+		select * from role
+	</select>
+	
+	<select id="queryForCount" resultType="int">
+		select count(*) from role 
+	</select>
+	
+	<select id="queryForList" resultMap="baseMapper">
+		select * from role 
+		limit #{beginIndex},#{pageSize}
+	</select>
+	
+	<insert id="saveRelation">
+		insert into role_permission(role_id,permission_id) values(#{roleId},#{permissionId})
+	</insert>
+	
+	<delete id="deleteRelation">
+		delete from role_permission where role_id = #{roleId}
+	</delete>
+	
+	<select id="selectEmployeeById" resultMap="baseMapper">
+		select * from role where id in 
+		(
+			select role_id from employee_role where employee_id = #{empId}
+		)
+	</select>
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com._520it.rbac.mapper.EmployeeMapper">
+	<insert id="save" parameterType="Employee" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		insert into employee(name,password,email,age,admin,dept_id)
+		values(#{name},#{password},#{email},#{age},#{admin},#{dept.id})
+	</insert>
+	<delete id="delete">
+		delete from employee where id = #{id}
+	</delete>
+	<update id="update" parameterType="Employee">
+		update employee set
+		name=#{name},
+		<if test="password != null and password !=''">
+		password=#{password},
+		</if>
+		email=#{email},age=#{age},admin=#{admin},dept_id=#{dept.id}
+		where id = #{id}
+	</update>
+	<resultMap type="Employee" id="baseResultMapper">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="password" column="password" />
+		<result property="email" column="email" />
+		<result property="age" column="age" />
+		<result property="admin" column="admin" />
+		<association property="dept" javaType="Department">
+			<result property="name" column="dname" />
+		</association>
+		<collection property="roles" ofType="Role" 
+					select="com._520it.rbac.mapper.RoleMapper.selectEmployeeById" column="id"></collection>
+	</resultMap>
+	<select id="get" resultMap="baseResultMapper">
+		select * from employee where id = #{id}
+	</select>
+	<select id="listAll" resultMap="baseResultMapper">
+		select e.*,d.name dname from employee e left join department d on e.dept_id = d.id
+	</select>
+	<!-- 高级查询 -->
+	<select id="queryForList" resultMap="baseResultMapper">
+		select e.*,d.name dname from employee e left join department d on e.dept_id = d.id
+		<include refid="condition"/>
+		limit #{beginIndex},#{pageSize}
+	</select>
+	<sql id="condition">
+		<where>
+			<if test="keyword != null and keyword != ''">
+				and  (e.name like CONCAT('%',#{keyword},'%') or e.name like CONCAT('%',#{keyword},'%'))
+			</if>
+			<if test="deptId != null and deptId != -1">
+				and e.dept_id = #{deptId}
+			</if>
+		</where>
+	</sql>
+	<select id="queryForCount" resultType="int">
+		select count(e.id) from employee e left join department d on e.dept_id = d.id
+		<include refid="condition"/>
+	</select>
+	
+	<insert id="saveRelation">
+		insert into employee_role(employee_id,role_id) values(#{empId},#{roleId})
+	</insert>
+	
+	<delete id="deleteRelation">
+		delete from employee_role where employee_id = #{empId}
+	</delete>
+	
+	<select id="checkLogin" resultMap="baseResultMapper">
+		select * from employee where name = #{username} and password = #{password}
+	</select>
+</mapper>
