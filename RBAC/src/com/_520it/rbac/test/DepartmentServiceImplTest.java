@@ -17,7 +17,7 @@ public class DepartmentServiceImplTest {
 
 	@Autowired
 	private IDepartmentService service;
-
+	//测试查询
 	@Test
 	public void testListAll() {
 		List<Department> list = service.listAll();
